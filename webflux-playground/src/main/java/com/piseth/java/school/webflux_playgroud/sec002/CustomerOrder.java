@@ -2,6 +2,19 @@ package com.piseth.java.school.webflux_playgroud.sec002;
 
 import java.time.Instant;
 
-public record CustomerOrder(String uuid, int customerId, int productId, int amount, Instant orderDate) {
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+import lombok.Data;
+
+@Data
+@Table(name = "customer_order")
+public class CustomerOrder {
+	@Id
+	private String uuid;
+	private int customerId;
+	private int productId;
+	private int amount;
+	private Instant orderDate;
 
 }

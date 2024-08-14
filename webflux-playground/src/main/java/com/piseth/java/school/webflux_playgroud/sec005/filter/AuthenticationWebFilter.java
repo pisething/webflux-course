@@ -18,7 +18,8 @@ import reactor.core.publisher.Mono;
 public class AuthenticationWebFilter implements WebFilter{
 	
 	@Autowired
-	private FilterExceptionHandler exceptionHandler;
+	private FilterErrorHandler errorHandler;
+	
 	
 	private static final Map<String, Category> TOKEN_CATEGORY_MAP = Map.of(
 			"secret123",Category.STANDARD,
@@ -34,7 +35,7 @@ public class AuthenticationWebFilter implements WebFilter{
 			return chain.filter(exchange);
 		}
 		//return Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED));
-		return exceptionHandler.sendProblemDetail(exchange, HttpStatus.UNAUTHORIZED, "Set the valid token");
+		return errorHandler.sendProblemDetail(exchange, HttpStatus.UNAUTHORIZED, "Set the valid token");
 	}
 
 }

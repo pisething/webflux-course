@@ -13,10 +13,12 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 import org.springframework.web.server.ServerWebExchange;
 
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import reactor.core.publisher.Mono;
 
 @Component
-public class FilterExceptionHandler {
+public class FilterErrorHandler {
 	
 	@Autowired
 	private ServerCodecConfigurer codecConfigurer;
@@ -27,24 +29,29 @@ public class FilterExceptionHandler {
 		this.context = new ContextImpl(codecConfigurer);
 	}
 	
-	public Mono<Void> sendProblemDetail(ServerWebExchange webExchange, HttpStatus httpStatus, String message){
-		var problem = ProblemDetail.forStatusAndDetail(httpStatus, message);
-		return ServerResponse.status(httpStatus)
-					.bodyValue(problem)
-					.flatMap(sr -> sr.writeTo(webExchange, this.context));
+	public Mono<Void> sendProblemDetail(ServerWebExchange exchange, HttpStatus status, String message){
+		var problem = ProblemDetail.forStatusAndDetail(status, message);
+		
+		return ServerResponse.status(status)
+				.bodyValue(problem)
+				.flatMap(sr -> sr.writeTo(exchange, context))
+				;
 	}
 	
-	private record ContextImpl(ServerCodecConfigurer configurer) implements ServerResponse.Context{
-
+	@Data
+	@AllArgsConstructor
+	private class ContextImpl implements ServerResponse.Context{
+		
+		private ServerCodecConfigurer codecConfigurer;
+		
 		@Override
 		public List<HttpMessageWriter<?>> messageWriters() {
-			
-			return this.configurer.getWriters();
+			return this.codecConfigurer.getWriters();
 		}
 
 		@Override
 		public List<ViewResolver> viewResolvers() {
-			
+			// TODO Auto-generated method stub
 			return List.of();
 		}
 		

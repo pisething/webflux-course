@@ -119,5 +119,22 @@ public class WebClientController {
 	    } 
 	    return Mono.just(ResponseEntity.status(401).build());
 	  }
+	  
+	  @GetMapping({"lec008/product/{id}"})
+	  @Operation(summary = "Exchange Filter Product Service", description = "Provide product details for the given product id. It supports product id between 1 and 100.\n</br>It expects bearer token to be sent. <code>Authorization: Bearer [generate new token]</code>.\n</br>Send new token every time using <code>UUID.randomUUID().toString().replace(\"-\", \"\")</code>!\n", tags = {"demo02"})
+	  public Mono<ResponseEntity<Product>> newTokenProduct(@PathVariable Integer id, @RequestHeader Map<String, String> headers) {
+	    log.info("headers received: {}", headers);
+	    if (headers.containsKey("Authorization") && ((String)headers.get("Authorization")).replace("Bearer ", "").length() == 32) {
+	      String path = "/demo02/lec09/product/" + id;
+	      if (id.intValue() < 1 || id.intValue() > 100)
+	        return Mono.empty(); 
+	      return Mono.delay(Duration.ofSeconds(1L))
+	        .map(i -> new Product(id, "product-" + id, Util.faker().random().nextInt(10, 1000)))
+	        .map(ResponseEntity::ok)
+	        .transform(Transformer.monoLogger(path));
+	    } 
+	    return Mono.just(ResponseEntity.status(401).build());
+	  }
+	  
 
 }
